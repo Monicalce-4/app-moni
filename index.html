@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8e9e7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="App Moni">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>App Moni · Tu día, tu ritmo</title>
+<style>
+:root{--ink:#543747;--muted:#806d77;--pink:#f5cbd1;--cream:#fff8f0;--rose:#f8e6e7;--lav:#e9e6f7;--mint:#e4f0e3;--peach:#fae6d1;--blue:#e2edf7;--line:#efdae0}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#fffaf4,#f9e8eb 65%,#f7eee4);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:24px 18px 15px;text-align:center} .brand{font-family:Georgia,serif;font-size:34px;font-style:italic;margin:0} .tag{margin:6px 0;color:var(--muted);font-size:14px}
+main{max-width:650px;margin:auto;padding:0 14px 100px}.welcome{background:rgba(255,255,255,.75);border:1px solid #f3d9dd;border-radius:24px;padding:20px;text-align:center;box-shadow:0 8px 22px #7b536012}.welcome h2{font-family:Georgia,serif;font-size:25px;font-weight:500;margin:0 0 8px}.welcome p{margin:6px 0;color:var(--muted);line-height:1.45}
+.datebar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 2px 10px;font-size:14px}.datebar button,.pill,.primary,.smallbtn{border:0;border-radius:14px;padding:10px 12px;background:#fff;color:var(--ink);font-size:14px;cursor:pointer}
+.tabs{display:flex;gap:8px;margin:12px 0;overflow:auto}.pill{white-space:nowrap;background:#fff8}.pill.active{background:#eec4cf;font-weight:700}
+.panel{background:#ffffffc9;border:1px solid #f1dce1;border-radius:20px;padding:15px;margin:12px 0;box-shadow:0 5px 18px #7b53600c}.panel h3{margin:0 0 12px;font-size:17px}.task{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:13px;margin:7px 0;background:var(--tone,#fff4e7)}.task input{width:20px;height:20px;accent-color:#bc7188;flex-shrink:0}.task .details{flex:1;min-width:0}.task .name{font-size:14px;font-weight:600}.task .time{font-size:12px;color:var(--muted);margin-top:3px}.task.done .name{text-decoration:line-through;opacity:.6}.task.done{opacity:.8}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{background:#fff9;border-radius:16px;padding:14px}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}
+label{display:block;font-size:13px;margin:10px 0 5px;color:var(--muted)}input[type=text],input[type=time],select,textarea{width:100%;border:1px solid var(--line);background:#fffdfb;border-radius:12px;padding:11px;font:inherit;color:var(--ink)}.primary{background:#bd7189;color:white;font-weight:700;padding:12px 16px}.secondary{background:#f8e7e9}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.smallbtn{background:#f8e7e9;padding:8px 10px;font-size:12px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fffaf4ed;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;gap:8px;padding:10px 8px calc(10px + env(safe-area-inset-bottom));z-index:5}.bottom button{flex:1;max-width:130px;background:transparent;border:0;color:var(--muted);padding:8px 2px;border-radius:12px;font-size:12px}.bottom button.active{background:#f5dce2;color:var(--ink);font-weight:700}.hidden{display:none!important}.note{font-size:12px;color:var(--muted);line-height:1.45}.empty{text-align:center;padding:20px;color:var(--muted)}footer{text-align:center;font-size:12px;color:var(--muted);padding:16px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><p class="brand">🌸 App Moni</p><p class="tag">Tu día, tu ritmo · Pequeños pasos, grandes logros</p></header>
+<main>
+<section class="welcome">
+  <h2 id="greeting">Buen día, Moni 💗</h2>
+  <p id="quote">“No hace falta hacerlo todo; alcanza con empezar por algo.”</p>
+  <p id="todayText"></p>
+</section>
+<div class="datebar"><button id="prevDay" aria-label="Día anterior">‹</button><strong id="selectedDate"></strong><button id="nextDay" aria-label="Día siguiente">›</button></div>
+<div class="tabs">
+<button class="pill active" data-mode="habitual">Rutina habitual</button>
+<button class="pill" data-mode="today">Mi día editable</button>
+</div>
+<section id="homeView">
+  <div class="grid">
+    <div class="stat"><b id="doneCount">0</b><span>actividades realizadas</span></div>
+    <div class="stat"><b id="totalCount">0</b><span>actividades planificadas</span></div>
+    <div class="stat"><b id="progress">0%</b><span>avance del día</span></div>
+  </div>
+  <div class="panel"><h3>🌷 Tu agenda</h3><div id="tasks"></div><p class="note">Marcá la casilla cuando termines una actividad. Tus cambios quedan guardados en este dispositivo.</p></div>
+  <div class="panel"><h3>✨ Un pequeño recordatorio</h3><p id="dailyLine">Tu tiempo también merece cuidado. Avanzá a tu ritmo.</p><button class="smallbtn" id="newQuote">Otra frase</button></div>
+</section>
+<section id="editView" class="hidden">
+  <div class="panel"><h3>📝 Editar esta rutina</h3>
+  <p class="note">Podés cambiar el nombre y la hora, agregar actividades o quitar las que no necesites.</p>
+  <div id="editTasks"></div>
+  <div class="actions"><button class="primary" id="addTask">＋ Agregar actividad</button><button class="smallbtn" id="resetRoutine">Restaurar rutina inicial</button></div>
+  </div>
+</section>
+<section id="coursesView" class="hidden">
+  <div class="panel"><h3>📚 Mis estudios y cursos</h3><p class="note">Anotá aquí qué estás estudiando y cuándo. Esta primera versión guarda los datos en el navegador de este dispositivo.</p>
+  <div id="courseList"></div>
+  <label for="courseName">Nombre del curso o estudio</label><input id="courseName" type="text" placeholder="Ej. Taller de Literatura">
+  <label for="courseWhen">Día y horario (opcional)</label><input id="courseWhen" type="text" placeholder="Ej. jueves por la mañana">
+  <div class="actions"><button class="primary" id="addCourse">Agregar curso</button></div>
+  </div>
+</section>
+<section id="settingsView" class="hidden">
+  <div class="panel"><h3>⚙️ Mis preferencias</h3>
+  <label for="wakeTime">Hora habitual de despertar</label><input id="wakeTime" type="time" value="08:00">
+  <label for="sleepTime">Hora habitual de dormir</label><input id="sleepTime" type="time" value="23:00">
+  <label for="reminderMode">Recordatorios</label><select id="reminderMode"><option value="none">Sin recordatorios</option><option value="onscreen">Mostrar aviso dentro de la app</option></select>
+  <div class="actions"><button class="primary" id="savePrefs">Guardar preferencias</button></div>
+  <p class="note">Importante: esta versión no envía notificaciones del sistema si la app está cerrada. Para eso hace falta configurar un servicio adicional.</p>
+  </div>
+  <div class="panel"><h3>💾 Tus datos</h3><p class="note">Los datos se guardan en el navegador de este dispositivo. Si borrás los datos del navegador, podrían perderse.</p><button class="smallbtn" id="exportData">Exportar mis datos</button></div>
+</section>
+<footer>Hecha con cariño para Moni 🌸</footer>
+</main>
+<nav class="bottom">
+<button class="active" data-view="homeView">🏡<br>Mi día</button>
+<button data-view="coursesView">📚<br>Estudios</button>
+<button data-view="editView">✏️<br>Editar rutina</button>
+<button data-view="settingsView">⚙️<br>Ajustes</button>
+</nav>
+<script>
+const initialRoutine=[
+ {time:"08:00",name:"Despertar",tone:"#fff0d9",days:"all"},
+ {time:"08:15",name:"Desayuno",tone:"#fce9d9",days:"all"},
+ {time:"09:00",name:"Estudios y cursos",tone:"#e4eff8",days:"all"},
+ {time:"12:30",name:"Almuerzo",tone:"#fff0d9",days:"all"},
+ {time:"14:00",name:"Otros cursos o lectura",tone:"#e9e7f7",days:"all"},
+ {time:"15:30",name:"Siesta / descanso",tone:"#e4eff8",days:"all"},
+ {time:"16:30",name:"Tareas del jardín",tone:"#e4f0e3",days:"all"},
+ {time:"18:00",name:"Gimnasio",tone:"#f6dce8",days:"gym"},
+ {time:"19:30",name:"Regreso a casa",tone:"#e4eff8",days:"all"},
+ {time:"20:00",name:"Descanso",tone:"#fff0d9",days:"all"},
+ {time:"20:30",name:"Cena liviana",tone:"#e4f0e3",days:"all"},
+ {time:"21:00",name:"TV / Netflix",tone:"#e9e7f7",days:"all"},
+ {time:"23:00",name:"Dormir",tone:"#e7e4f6",days:"all"}
+];
+const quotes=["No hace falta hacerlo todo; alcanza con empezar por algo.","Tu tiempo también merece cuidado. Avanzá a tu ritmo.","Cada pequeño paso cuenta, incluso descansar.","Hoy podés aprender algo nuevo y regalarte un momento de calma.","No es una carrera: es tu vida, a tu ritmo.","Un jardín florece de a poco. Vos también."];
+const key="appMoni_v1";
+let state=JSON.parse(localStorage.getItem(key)||"null")||{routine:initialRoutine,courses:[],checks:{},prefs:{wake:"08:00",sleep:"23:00",reminders:"none"},overrides:{}};
+let chosenDate=new Date(); chosenDate.setHours(12,0,0,0); let mode="habitual"; let activeView="homeView";
+function save(){localStorage.setItem(key,JSON.stringify(state))}
+function dateKey(d=chosenDate){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function prettyDate(d){return new Intl.DateTimeFormat("es-AR",{weekday:"long",day:"numeric",month:"long"}).format(d)}
+function isGymDay(d){return d.getDay()===2||d.getDay()===4}
+function routineForDay(){let list=JSON.parse(JSON.stringify(state.overrides[dateKey()]||state.routine));return list.map(t=>({...t})).filter(t=>t.days!=="gym"||isGymDay(chosenDate)).map(t=>{if(t.name==="Gimnasio"&& !isGymDay(chosenDate))return {...t,name:"Tiempo libre / paseo"};return t})}
+function setGreeting(){let h=new Date().getHours();document.getElementById("greeting").textContent=(h<12?"Buen día":h<19?"Buenas tardes":"Buenas noches")+", Moni 💗";document.getElementById("todayText").textContent=prettyDate(chosenDate);document.getElementById("selectedDate").textContent=prettyDate(chosenDate).replace(/^./,c=>c.toUpperCase())}
+function renderTasks(){let list=mode==="habitual"?state.routine:routineForDay();let tasks=document.getElementById("tasks");tasks.innerHTML="";let checks=state.checks[dateKey()]||{};list.forEach((t,i)=>{let done=!!checks[t.name+"_"+i];let row=document.createElement("label");row.className="task"+(done?" done":"");row.style.setProperty("--tone",t.tone||"#fff4e7");row.innerHTML=`<input type="checkbox" ${done?"checked":""} aria-label="Marcar actividad realizada"><div class="details"><div class="name"></div><div class="time"></div></div>`;row.querySelector(".name").textContent=t.name;row.querySelector(".time").textContent=t.time;row.querySelector("input").onchange=e=>{if(!state.checks[dateKey()])state.checks[dateKey()]={};state.checks[dateKey()][t.name+"_"+i]=e.target.checked;save();renderTasks()};tasks.appendChild(row)});let done=Object.values(checks).filter(Boolean).length;document.getElementById("doneCount").textContent=done;document.getElementById("totalCount").textContent=list.length;document.getElementById("progress").textContent=(list.length?Math.round(done/list.length*100):0)+"%"}
+function renderEdit(){let wrap=document.getElementById("editTasks");wrap.innerHTML="";state.routine.forEach((t,i)=>{let card=document.createElement("div");card.className="panel";card.innerHTML=`<label>Actividad</label><input type="text" value=""><label>Horario</label><input type="time" value=""><div class="actions"><button class="smallbtn">Quitar</button></div>`;let inputs=card.querySelectorAll("input");inputs[0].value=t.name;inputs[1].value=t.time;inputs[0].onchange=()=>{state.routine[i].name=inputs[0].value;save();renderTasks()};inputs[1].onchange=()=>{state.routine[i].time=inputs[1].value;save();renderTasks()};card.querySelector("button").onclick=()=>{state.routine.splice(i,1);save();renderEdit();renderTasks()};wrap.appendChild(card)})}
+function renderCourses(){let wrap=document.getElementById("courseList");wrap.innerHTML="";if(!state.courses.length){wrap.innerHTML='<p class="empty">Todavía no agregaste cursos. Podés empezar por uno.</p>';return}state.courses.forEach((c,i)=>{let p=document.createElement("div");p.className="task";p.style.setProperty("--tone","#e9e7f7");p.innerHTML='<div class="details"><div class="name"></div><div class="time"></div></div><button class="smallbtn">Quitar</button>';p.querySelector(".name").textContent=c.name;p.querySelector(".time").textContent=c.when||"Horario a definir";p.querySelector("button").onclick=()=>{state.courses.splice(i,1);save();renderCourses()};wrap.appendChild(p)})}
+function showView(view){activeView=view;["homeView","editView","coursesView","settingsView"].forEach(v=>document.getElementById(v).classList.toggle("hidden",v!==view));document.querySelectorAll(".bottom button").forEach(b=>b.classList.toggle("active",b.dataset.view===view))}
+document.querySelectorAll(".bottom button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));renderTasks()});
+document.getElementById("prevDay").onclick=()=>{chosenDate.setDate(chosenDate.getDate()-1);setGreeting();renderTasks()};
+document.getElementById("nextDay").onclick=()=>{chosenDate.setDate(chosenDate.getDate()+1);setGreeting();renderTasks()};
+document.getElementById("newQuote").onclick=()=>document.getElementById("dailyLine").textContent=quotes[Math.floor(Math.random()*quotes.length)];
+document.getElementById("addTask").onclick=()=>{state.routine.push({time:"10:00",name:"Nueva actividad",tone:"#fff0d9",days:"all"});save();renderEdit();renderTasks()};
+document.getElementById("resetRoutine").onclick=()=>{if(confirm("¿Restaurar la rutina inicial? Tus cursos guardados no se borran.")){state.routine=JSON.parse(JSON.stringify(initialRoutine));save();renderEdit();renderTasks()}};
+document.getElementById("addCourse").onclick=()=>{let name=document.getElementById("courseName").value.trim();if(!name){alert("Escribí el nombre del curso.");return}state.courses.push({name,when:document.getElementById("courseWhen").value.trim()});save();document.getElementById("courseName").value="";document.getElementById("courseWhen").value="";renderCourses()};
+document.getElementById("wakeTime").value=state.prefs.wake;document.getElementById("sleepTime").value=state.prefs.sleep;document.getElementById("reminderMode").value=state.prefs.reminders;
+document.getElementById("savePrefs").onclick=()=>{state.prefs={wake:document.getElementById("wakeTime").value,sleep:document.getElementById("sleepTime").value,reminders:document.getElementById("reminderMode").value};save();alert("Preferencias guardadas 🌷")};
+document.getElementById("exportData").onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mis-datos-app-moni.json";a.click();URL.revokeObjectURL(a.href)};
+setGreeting();renderTasks();renderEdit();renderCourses();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>

@@ -1,0 +1,19 @@
+APP MONI — primera versión
+===========================
+
+Contenido:
+- index.html: la aplicación
+- manifest.webmanifest: configuración para instalar como app web
+- sw.js: caché básica para uso offline después de la primera carga
+- icon-192.png e icon-512.png: iconos de la app
+
+IMPORTANTE:
+Para instalar en iPhone, la app debe estar publicada en una dirección HTTPS.
+Abrir un archivo HTML directamente no permite instalarla como PWA ni activar el service worker.
+Esta versión guarda la rutina y cursos en el almacenamiento local del navegador del dispositivo.
+Los datos no se sincronizan automáticamente entre PC e iPhone.
+Las notificaciones del sistema no están implementadas.
+
+Siguiente paso recomendado:
+Subir estos archivos a un alojamiento HTTPS (por ejemplo, GitHub Pages) y abrir el enlace en Safari en el iPhone.
+En Safari: Compartir > Añadir a pantalla de inicio.
